@@ -2,8 +2,10 @@
 
 namespace Voryx\ThruwayBundle\Command;
 
+use App\Websocket\Pinger\SessionPinger;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +22,7 @@ use Voryx\ThruwayBundle\Process\ProcessManager;
  *
  * @package Voryx\ThruwayTestBundle\Command
  */
-class ThruwayProcessCommand extends ContainerAwareCommand
+class ThruwayProcessCommand extends \Symfony\Component\Console\Command\Command
 {
 
     /**
@@ -52,6 +54,16 @@ class ThruwayProcessCommand extends ContainerAwareCommand
      * @var \Psr\Log\LoggerInterface $logger
      */
     private $logger;
+
+    public function __construct(
+        private ContainerInterface $container,
+    ) {
+        parent::__construct();
+    }
+
+    private function getContainer() {
+        return $this->container;
+    }
 
     /**
      * Called by the Service Container.
@@ -113,6 +125,8 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             default:
                 $output->writeln('Expected an action: start, stop, status');
         }
+
+        return \Symfony\Component\Console\Command\Command::SUCCESS;
     }
 
     /**
@@ -121,8 +135,8 @@ class ThruwayProcessCommand extends ContainerAwareCommand
      */
     protected function start()
     {
-        $appCmd = "{$this->getContainer()->get('kernel')->getRootDir()}/console";
-        $binCmd = "{$this->getContainer()->get('kernel')->getRootDir()}/../bin/console";
+        $appCmd = "{$this->getContainer()->get('kernel')->getProjectDir()}/console";
+        $binCmd = "{$this->getContainer()->get('kernel')->getProjectDir()}/bin/console";
 
         $this->consoleCommand = file_exists($binCmd) ? $binCmd : $appCmd;
 

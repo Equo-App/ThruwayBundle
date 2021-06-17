@@ -2,6 +2,7 @@
 
 namespace Voryx\ThruwayBundle\Command;
 
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -12,8 +13,18 @@ use Voryx\ThruwayBundle\Annotation\Register;
 use Voryx\ThruwayBundle\Annotation\Subscribe;
 use Voryx\ThruwayBundle\Mapping\URIClassMapping;
 
-class ThruwayDebugCommand extends ContainerAwareCommand
+class ThruwayDebugCommand extends \Symfony\Component\Console\Command\Command
 {
+    public function __construct(
+        private ContainerInterface $container,
+    ) {
+        parent::__construct();
+    }
+
+    private function getContainer() {
+        return $this->container;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -91,6 +102,8 @@ class ThruwayDebugCommand extends ContainerAwareCommand
 
             $table->render();
         }
+
+        return \Symfony\Component\Console\Command\Command::SUCCESS;
     }
 
     /**
